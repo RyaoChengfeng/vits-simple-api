@@ -259,6 +259,38 @@ You can find the corresponding command for the version you need on the [official
 ## Linux
 The installation process is similar, but I don't have the environment to test it.
 
+## Docker
+
+Make sure CUDA is properly installed on your machine.
+
+To mount the CUDA environment into a Docker container and enable GPU support, you can use the following `docker-compose.yml` file. Replace `/yourpath` with your actual path
+
+```yaml
+version: '3.4'
+services:
+  vits:
+    image: artrajz/vits-simple-api:latest
+    restart: always
+    ports:
+      - 23456:23456
+    environment:
+      LANG: 'C.UTF-8'
+      TZ: Asia/Shanghai # timezone
+    volumes:
+      - ./Model:/app/Model # mount the model folder
+      - ./config.py:/app/config.py # mount the configuration file
+      - /yourpath/cuda/lib64:/usr/local/cuda/lib64
+      - /yourpath/cuda/include:/usr/local/cuda/include
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [ gpu ]
+
+```
+
 # Openjtalk Installation Issue
 
 If you are using an arm64 architecture platform, you may encounter some issues during installation due to the lack of arm64-compatible whl files on the official PyPI website. In such cases, you can use the whl file I have built to install Openjtalk.

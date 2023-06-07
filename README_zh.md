@@ -258,6 +258,37 @@ pip3 install torch torchvision torchaudio --index-url https://download.pytorch.o
 
 安装过程类似，但我没有相应的环境所以没办法测试
 
+## Docker
+
+确保你的机器上已经正确安装了 CUDA
+
+将 CUDA 环境挂载到 Docker 容器中并为容器启用 GPU 支持，你可以使用以下`docker-compose.yml`. 其中`/yourpath`需要更改为你的实际路径
+
+```yaml
+version: '3.4'
+services:
+  vits:
+    image: artrajz/vits-simple-api:latest
+    restart: always
+    ports:
+      - 23456:23456
+    environment:
+      LANG: 'C.UTF-8'
+      TZ: Asia/Shanghai #timezone
+    volumes:
+      - ./Model:/app/Model # 挂载模型文件夹
+      - ./config.py:/app/config.py # 挂载配置文件
+      - /yourpath/cuda/lib64:/usr/local/cuda/lib64
+      - /yourpath/cuda/include:/usr/local/cuda/include
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [ gpu ]
+```
+
 # Openjtalk安装问题
 
 如果你是arm64架构的平台，由于pypi官网上没有arm64对应的whl，可能安装会出现一些问题，你可以使用我构建的whl来安装
